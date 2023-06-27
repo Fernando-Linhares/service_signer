@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<State>
+    <Cert path="/home/fernando/projects/signer/Ferd.pfx" name="Cert" password="1234"/>
+    <Storage path="/home/fernando/projects/signer/storage">
+    <Services>
+        <Signature url="" auth=""/>
+        <Webhook url="" auth=""/>
+    </Services>
+</State>
