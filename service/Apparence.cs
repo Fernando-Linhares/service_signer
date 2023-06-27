@@ -1,25 +1,19 @@
 using iTextSharp.text.pdf;
 using iTextSharp.text;
 
-namespace DKS3SC
+namespace Service;
+
+public class Apparence
 {
-    public class Apparence
-    {
-        public string? Reason { get; set; }
+    public string Reason = "I Agree";
 
-        public string? Location { get; set; }
+    public string Location =  "Brasil";
 
-        public string? Content { get; set; }
+    public bool HasLayers = true;
 
-        public bool? HasLayers { get; set; }
+    public bool Visible = true;
 
-        public bool Visible { get => true; }
+    public string Content = "Signed By @cert_name@ Date @signature_date@";
 
-        public void Apply(PdfSignatureAppearance apparence)
-        {
-            apparence.SignatureRenderingMode = PdfSignatureAppearance.RenderingMode.DESCRIPTION;
-
-            apparence.SetVisibleSignature(new Rectangle(100, 100, 300, 200), 1, "Signature");
-        }
-    }
+    public int[] Dimensions = new int[] { 100, 100, 300, 200 };
 }

@@ -1,11 +1,13 @@
 using System;
 using System.Security.Cryptography.X509Certificates;
+using iTextSharp.text;
 using iTextSharp.text.pdf;
 using iTextSharp.text.pdf.security;
 using Parser = Org.BouncyCastle.X509.X509CertificateParser;
 using BouncyCert = Org.BouncyCastle.X509.X509Certificate;
 using CryptoException = System.Security.Cryptography.CryptographicException;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace Service;
 
@@ -43,15 +45,40 @@ public class Signer
 
         var apparence = stamper.SignatureAppearance;
 
+        var preferencies =
+
         apparence.Certificate = bouncyCert[0];
 
         apparence.CryptoDictionary = directory;
 
-        apparence.Reason =  "I Agree";
+        apparence.Reason = preferencies.Reason;
 
-        apparence.Location =  "Brasil";
+        apparence.Location =  preferencies.Location;
 
-        apparence.Layer2Text = $"Signed By {certName} Date {apparence.SignDate} ";
+        string content = "";
+
+        content += Regex.Replace(certName, @"@cert_name@", preferencies.Content);
+
+        content += Regex.Replace(apparence.SignDate, @"@signature_date@", content);
+
+        apparence.Layer2Text = content;
+
+        if(preferencies.Visible)
+        {
+            apparence.SignatureRenderingMode = preferencies.Type switch
+            {
+                "DESCRIPTION" => PdfSignatureAppearance.RenderingMode.DESCRIPTION,
+            };
+
+            var rec = new Rectangle(
+                preferencies.Dimensions[0],
+                preferencies.Dimensions[0],
+                preferencies.Dimensions[0],
+                preferencies.Dimensions[0]
+            );
+
+            apparence.SetVisibleSignature(rec, "Signature");
+        }
 
         apparence.Acro6Layers = true;
 
