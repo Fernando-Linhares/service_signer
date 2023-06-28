@@ -1,7 +1,4 @@
-using iTextSharp.text.pdf;
-using iTextSharp.text;
-
-namespace Service;
+namespace Service.Serialization;
 
 public class Apparence
 {
@@ -16,4 +13,6 @@ public class Apparence
     public string Content = "Signed By @cert_name@ Date @signature_date@";
 
     public int[] Dimensions = new int[] { 100, 100, 300, 200 };
+
+    public string Type = "DESCRIPTION"; 
 }

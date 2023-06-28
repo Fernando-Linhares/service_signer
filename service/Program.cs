@@ -17,10 +17,12 @@ public class Program
         {
             var parameters = Args(args);
 
-            if(parameters.ContainsKey("filepath") && parameters.ContainsKey("certpath"))
-            {
-                Signer.Sign(parameters["filepath"], parameters["certpath"]);
-            }
+            if(
+                parameters.ContainsKey("filepath") &&
+                parameters.ContainsKey("certpath") &&
+                parameters.ContainsKey("password")
+            )
+                Signer.Sign(parameters["certpath"], parameters["password"], parameters["filepath"]);
         }
     }
 
