@@ -155,4 +155,20 @@ public class Signer
 
         streamWriter.Close();
     }
+
+    public static void ListCertificates()
+    {
+        var ListCertificates =  new {
+            Certificates = new object[]{
+                
+            }
+        };
+        
+        Console.WriteLine(JsonConvert.SerializeObject(ListCertificates));
+    }
+
+    public static void SelectCertificate()
+    {
+
+    }
 }
