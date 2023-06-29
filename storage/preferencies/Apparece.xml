@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Apparence xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Reason>I Agree</Reason>
+  <Location>Brasil</Location>
+  <HasLayers>true</HasLayers>
+  <Visible>true</Visible>
+  <Content>Signed By @cert_name@ Date @signature_date@</Content>
+  <Dimensions>
+    <int>100</int>
+    <int>100</int>
+    <int>300</int>
+    <int>200</int>
+  </Dimensions>
+  <Type>DESCRIPTION</Type>
+</Apparence>

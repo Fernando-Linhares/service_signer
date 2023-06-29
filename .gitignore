@@ -2,3 +2,7 @@ storage/*
 service/bin/*
 service/obj/*
 service/.env
+!certificates
+!logs
+!pdfs
+!preferencies

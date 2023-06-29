@@ -12,7 +12,7 @@ public class Factory
     {
         string? storage = _env.Get("STORAGE_PATH");
 
-        string preferenciesFile = storage + @"/Apparece.xml";
+        string preferenciesFile = storage + @"/preferencies/Apparece.xml";
 
         if(!File.Exists(preferenciesFile))
             CreateFilePreferencies(preferenciesFile);
