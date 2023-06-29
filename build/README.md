@@ -9,7 +9,7 @@ token : para a chave pública a ser utilizada
 
 ### Observações.
 
-#### token (chave pública) - 
+#### token (chave pública) -
 
 Pode ser gerado tanto no aplicativo do assinador em 
 configurações > chave publica > gerar chave >

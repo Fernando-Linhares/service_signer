@@ -1,0 +1,9 @@
+{
+    "name": "com.signer.service",
+    "description": "Open Signer Service",
+    "path": "/home/fernando/projects/signer/build/service/bin/signer",
+    "type": "stdio",
+    "allowed_origins": [
+        "chrome-extension://djdoelkahgbnkichphfaljieldgphpba/"
+    ]
+}

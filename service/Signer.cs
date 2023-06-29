@@ -18,7 +18,7 @@ public class Signer
         string status = "pendente";
 
         string fileName = "Not Found";
-        
+
         string certName = "Not Found";
 
         try
