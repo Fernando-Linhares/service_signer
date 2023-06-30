@@ -1,11 +1,13 @@
-﻿// using System;
-// using System.Security.Cryptography.X509Certificates;
-// using iTextSharp.text.pdf;
-// using iTextSharp.text.pdf.security;
-// using Parser = Org.BouncyCastle.X509.X509CertificateParser;
-// using BouncyCert = Org.BouncyCastle.X509.X509Certificate;
-// using CryptoException = System.Security.Cryptography.CryptographicException;
-// using System.Collections.Generic;
+﻿using System;
+using System.Security.Cryptography.X509Certificates;
+using iTextSharp.text.pdf;
+using iTextSharp.text.pdf.security;
+using Parser = Org.BouncyCastle.X509.X509CertificateParser;
+using BouncyCert = Org.BouncyCastle.X509.X509Certificate;
+using CryptoException = System.Security.Cryptography.CryptographicException;
+using System.Collections.Generic;
+using Newtonsoft.Json;
+using System.Text;
 
 namespace Service;
 
@@ -13,6 +15,28 @@ public class Program
 {
     public static void Main(string[] args)
     {
+        var stdin = Console.OpenStandardInput();
+
+        var length = 0;
+
+        var lengthBytes = new byte[4];
+
+        stdin.Read(lengthBytes, 0, 4);
+
+        length = BitConverter.ToInt32(lengthBytes, 0);
+
+        var buffer = new char[length];
+
+        using var reader = new StreamReader(stdin);
+
+        while (reader.Peek() >= 0){
+            reader.Read(buffer, 0, buffer.Length);
+            var json = JsonConvert.DeserializeObject<dynamic>(new string(buffer));
+
+            Write(stdin, json);
+        }
+
+
         if(args.Length > 0)
         {
             var parameters = Args(args);
@@ -174,5 +198,16 @@ public class Program
         }
 
         return dict;
+    }
+
+    public static void Write(Stream buffer, string content)
+    {
+        using var writer = new StreamWriter(buffer);
+
+        byte[] bytes = Encoding.Unicode.GetBytes(content);
+
+        char[] chars = Encoding.Unicode.GetChars(bytes);
+
+        writer.Write(chars, 0, chars.Length);
     }
 }

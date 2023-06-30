@@ -4,12 +4,11 @@ chrome.runtime.onMessage.addListener(
     (request, sender, sendResponse) => {
         port = connect('com.signer.service');
         console.log(sendResponse)
-        // makeXml(request);
         onDisconnect();
     }
 );
 
-function connect(host){
+function connect(host) {
     return chrome.runtime.connectNative(host);
 }
 
@@ -26,13 +25,3 @@ function onDisconnect() {
         }
     });
 }
-
-// function makeXml(request){
-//     port.postMessage({ 
-//         user: request.user,
-//         token: request.public_key,
-//         group: request.group,
-//         box: request.box,
-//         regenerate: request.regenerate
-//     });
-// }
