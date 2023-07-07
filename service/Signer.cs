@@ -11,7 +11,7 @@ namespace Service;
 
 public class Signer
 {
-    public static void Sign(CertificateIn certificate, string password, string filepath)
+    public static string Sign(CertificateIn certificate, string password, string filepath)
     {
         var env = new Env();
 
@@ -147,7 +147,7 @@ public class Signer
         if(!env.KeyIsEmpty("WEBHOOK"))
             UpdateStatus(status, fileName, env.Get("WEBHOOK"), env.Get("LOG_PATH")).Wait();
 
-        Console.WriteLine($"{DateTime.Now}| By {certName}| File: {fileName} | {status.ToUpper()}");
+        return $"{DateTime.Now}| By {certName}| File: {fileName} | {status.ToUpper()}";
     }
 
     public static async Task UpdateStatus(string status, string filename, string? url, string? logpath)
@@ -171,7 +171,7 @@ public class Signer
         streamWriter.Close();
     }
 
-    public static void ListCertificates()
+    public static string ListCertificates()
     {
         var store = new X509Store(StoreName.My, StoreLocation.CurrentUser);
 
@@ -201,9 +201,7 @@ public class Signer
             });
         }
 
-        string jsonContent = JsonConvert.SerializeObject(certList);
-
-        Console.WriteLine(jsonContent);
+        return JsonConvert.SerializeObject(certList);
     }
 
     public static void AddCertificate(string filepath, string password)

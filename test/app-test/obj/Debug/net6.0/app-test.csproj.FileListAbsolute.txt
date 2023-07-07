@@ -1,0 +1,15 @@
+/home/fernando/projects/signer/test/app-test/bin/Debug/net6.0/app-test
+/home/fernando/projects/signer/test/app-test/bin/Debug/net6.0/app-test.deps.json
+/home/fernando/projects/signer/test/app-test/bin/Debug/net6.0/app-test.runtimeconfig.json
+/home/fernando/projects/signer/test/app-test/bin/Debug/net6.0/app-test.dll
+/home/fernando/projects/signer/test/app-test/bin/Debug/net6.0/ref/app-test.dll
+/home/fernando/projects/signer/test/app-test/bin/Debug/net6.0/app-test.pdb
+/home/fernando/projects/signer/test/app-test/obj/Debug/net6.0/app-test.csproj.AssemblyReference.cache
+/home/fernando/projects/signer/test/app-test/obj/Debug/net6.0/app-test.GeneratedMSBuildEditorConfig.editorconfig
+/home/fernando/projects/signer/test/app-test/obj/Debug/net6.0/app-test.AssemblyInfoInputs.cache
+/home/fernando/projects/signer/test/app-test/obj/Debug/net6.0/app-test.AssemblyInfo.cs
+/home/fernando/projects/signer/test/app-test/obj/Debug/net6.0/app-test.csproj.CoreCompileInputs.cache
+/home/fernando/projects/signer/test/app-test/obj/Debug/net6.0/app-test.dll
+/home/fernando/projects/signer/test/app-test/obj/Debug/net6.0/ref/app-test.dll
+/home/fernando/projects/signer/test/app-test/obj/Debug/net6.0/app-test.pdb
+/home/fernando/projects/signer/test/app-test/obj/Debug/net6.0/app-test.genruntimeconfig.cache

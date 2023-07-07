@@ -10,6 +10,7 @@
   <ItemGroup>
     <PackageReference Include="itext7" Version="8.0.0" />
     <PackageReference Include="iTextSharp" Version="5.5.13.3" />
+    <PackageReference Include="System.Net.WebSockets" Version="4.3.0" />
     <PackageReference Include="System.Security.Cryptography.X509Certificates" Version="4.3.2" />
   </ItemGroup>
 

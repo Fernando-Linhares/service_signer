@@ -1,12 +1,12 @@
 var port = 3459;
 
-chrome.runtime.onMessage.addListener(
-    (request, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         port = connect('com.signer.service');
-        console.log(sendResponse)
         onDisconnect();
     }
 );
+
+connect('com.signer.service');
 
 function connect(host) {
     return chrome.runtime.connectNative(host);

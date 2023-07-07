@@ -1,9 +1,9 @@
 {
     "name": "com.signer.service",
     "description": "Open Signer Service",
-    "path": "/home/fernando/projects/signer/build/service/bin/signer",
+    "path": "/home/fernando/test/dotnet/test/bin/Debug/net6.0/test",
     "type": "stdio",
     "allowed_origins": [
-        "chrome-extension://djdoelkahgbnkichphfaljieldgphpba/"
+        "chrome-extension://flmfffijgjlkjdjgkpjdecdbnoedeamp/"
     ]
 }
