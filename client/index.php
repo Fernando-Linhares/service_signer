@@ -6,7 +6,6 @@
     <title>Signer Plenus</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.0/css/bulma.min.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <script defer src="popup.js"></script>
 </head>
 <body>
     <div class="container">
@@ -26,8 +25,18 @@
             </div>
         </div>
         <footer class="card-footer">
-            <p class="card-footer-item">Aplicação para assinatura digital A3</p>
+            <p class="card-footer-item">Aplicação para assinatura digital A3
+
+
+            <?= $_SERVER['REMOTE_ADDR'] ?>
+            </p>
         </footer>
     </div>
+    <script>
+        var a = new WebSocket('ws://127.0.0.1:9393');
+
+        a.onerror = (res) => console.log(res);
+
+    </script>
 </body>
 </html>
