@@ -17,6 +17,7 @@
             </header>
             <div class="card-content has-text-centered">
                 <p class="subtitle">Assinatura Digital</p>
+                <input type="file" name="" id="file">
                 <div class="content" >
                     <button class="button is-info actived" id="btn-lc">
                         <i class="material-icons">assignment_turned_in</i>
@@ -26,16 +27,25 @@
         </div>
         <footer class="card-footer">
             <p class="card-footer-item">Aplicação para assinatura digital A3
-
-
             <?= $_SERVER['REMOTE_ADDR'] ?>
             </p>
         </footer>
     </div>
     <script>
-        var a = new WebSocket('ws://127.0.0.1:9393');
+        var ws = new WebSocket('ws://localhost:2514');
 
-        a.onerror = (res) => console.log(res);
+        var f = new Blob([
+            document.querySelector('#file').files[0],
+            {
+                'content-type':'application/json'
+            }
+        ]);
+
+        var a = new FileReader();
+
+        ws.send({
+
+        })
 
     </script>
 </body>

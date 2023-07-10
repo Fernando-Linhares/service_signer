@@ -8,7 +8,7 @@ public class CertificatesController : Controller
     {
         var result = Signer.AddCertificate(new CertificateIn
         {
-            FileContent = Form["Content"],
+            FileContent = Convert.FromBase64String(Form["FileContent"]),
             Password = Form["Password"]
         });
 

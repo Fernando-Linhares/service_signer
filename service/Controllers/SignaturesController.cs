@@ -15,7 +15,7 @@ public class SignaturesController: Controller
 
         string password = Form["Password"];
 
-        var result = Signer.Sign(cert, password, filePath);
+        var result = await Signer.Sign(cert, password, filePath);
 
         var env = new Env();
 

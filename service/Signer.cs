@@ -7,12 +7,13 @@ using BouncyCert = Org.BouncyCastle.X509.X509Certificate;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 using Service.Signature;
+using System.Text;
 
 namespace Service;
 
 public class Signer
 {
-    public static Statement Sign(int CertificateId, string password, string filepath)
+    public static async Task<Statement> Sign(int CertificateId, string password, string filepath)
     {
         var env = new Env();
 
@@ -22,6 +23,8 @@ public class Signer
 
         string certName = "Not Found";
 
+        string signedfilename = "Not Found";
+
         try
         {
             status = "assinando";
@@ -30,14 +33,13 @@ public class Signer
 
             var cert = FindCert(CertificateId);
 
-            // Console.WriteLine(cert);
-            // Console.WriteLine(certName);
-
             var parser = new Parser();
 
             using var reader = new PdfReader(filepath);
 
-            using var stream = File.Open(filepath.Substring(0, filepath.Length -4) + "-signed.pdf", FileMode.Create);
+            signedfilename = filepath.Substring(0, filepath.Length -4) + "-signed.pdf";
+
+            using var stream = File.Open(signedfilename, FileMode.Create);
 
             fileName = Path.GetFileName(stream.Name);
 
@@ -99,10 +101,8 @@ public class Signer
             apparence.Acro6Layers = true;
 
             IExternalSignature external = new SignatureExt(cert);
-            Console.WriteLine("OK 1");
 
             MakeSignature.SignDetached(apparence, external, bouncyCert, null, null, null, 0, CryptoStandard.CMS);
-            Console.WriteLine("OK 2");
 
             reader.Close();
 
@@ -140,13 +140,16 @@ public class Signer
             Console.WriteLine(generic.InnerException);
         }
 
-        Console.WriteLine(status);
+        byte[] signedBytes = await File.ReadAllBytesAsync(signedfilename);
+
+        string signedContent = Convert.ToBase64String(signedBytes);
 
         return new Statement
         {
             Time = DateTime.UtcNow.ToString("mm-dd-yyyy h:i:s"),
             CertName = certName,
             FileName = fileName,
+            FileContent = signedContent,
             Status = status.ToUpper()
         };
     }
@@ -277,8 +280,6 @@ public class Signer
         }
         catch (System.Exception exception)
         {
-            Console.WriteLine("Error on add certificate");
-
             return new 
             {
                 Error = exception.InnerException

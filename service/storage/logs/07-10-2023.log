@@ -55,3 +55,9 @@
 29-10-2023 16:29:40| ERROR - The given key 'WEBHOOK' was not present in the dictionary.
 07-10-2023 16:42:06| OK - SignaturesController->Sign
 07-10-2023 16:49:33| OK - SignaturesController->Sign
+07-10-2023 19:28:53| OK - CertificatesController->Index
+07-10-2023 19:28:53| ERROR - The given key 'Content' was not present in the dictionary.
+07-10-2023 19:29:28| ERROR - The given key 'Content' was not present in the dictionary.
+07-10-2023 19:31:40| OK - CertificatesController->Store
+07-10-2023 19:32:38| OK - CertificatesController->Index
+07-10-2023 19:45:37| OK - CertificatesController->Index
