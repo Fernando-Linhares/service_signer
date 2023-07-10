@@ -6,12 +6,12 @@ public abstract class Controller
 {
    public Dictionary<string, string>? Form { get; set; }
 
-   public async Task<Response> Send(Dictionary<string, string> data)
+   public async Task<Response> Send(object data)
    {
-        var response = new Response();
+      var response = new Response();
 
-        response.Attributes = data;
+      response.Attributes = data;
 
-        return response;
+      return response;
    }
 }

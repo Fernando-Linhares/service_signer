@@ -1,0 +1,57 @@
+
+06-10-2023 16:6:41| ERROR - 
+06-10-2023 16:6:41| ERROR - 
+06-10-2023 16:6:41| ERROR - 
+06-10-2023 16:6:41| ERROR - 
+06-10-2023 16:6:41| ERROR - 
+06-10-2023 16:6:41| ERROR - 
+06-10-2023 16:6:42| ERROR - 
+06-10-2023 16:6:42| ERROR - 
+06-10-2023 16:6:42| ERROR - 
+06-10-2023 16:6:42| ERROR - 
+06-10-2023 16:6:42| ERROR - 
+06-10-2023 16:6:42| ERROR - 
+06-10-2023 16:6:43| ERROR - 
+06-10-2023 16:6:43| ERROR - 
+06-10-2023 16:6:43| ERROR - 
+08-10-2023 16:8:55| ERROR - 
+10-10-2023 16:10:24| ERROR - 
+22-10-2023 16:22:9| OK - EnvironmentController->Setup
+22-10-2023 16:22:41| OK - CertificatesController->Index
+24-10-2023 16:24:58| OK - CertificatesController->Index
+25-10-2023 16:25:19| ERROR - 
+25-10-2023 16:25:19| ERROR - 
+25-10-2023 16:25:20| ERROR - 
+25-10-2023 16:25:20| ERROR - 
+25-10-2023 16:25:20| ERROR - 
+25-10-2023 16:25:20| ERROR - 
+25-10-2023 16:25:21| ERROR - 
+25-10-2023 16:25:21| ERROR - 
+25-10-2023 16:25:21| ERROR - 
+25-10-2023 16:25:21| ERROR - 
+28-10-2023 16:28:13| ERROR - The given key 'WEBHOOK' was not present in the dictionary.
+28-10-2023 16:28:14| ERROR - The given key 'WEBHOOK' was not present in the dictionary.
+28-10-2023 16:28:14| ERROR - The given key 'WEBHOOK' was not present in the dictionary.
+28-10-2023 16:28:14| ERROR - The given key 'WEBHOOK' was not present in the dictionary.
+28-10-2023 16:28:14| ERROR - The given key 'WEBHOOK' was not present in the dictionary.
+28-10-2023 16:28:15| ERROR - The given key 'WEBHOOK' was not present in the dictionary.
+28-10-2023 16:28:15| ERROR - The given key 'WEBHOOK' was not present in the dictionary.
+28-10-2023 16:28:30| ERROR - The given key 'WEBHOOK' was not present in the dictionary.
+28-10-2023 16:28:30| ERROR - The given key 'WEBHOOK' was not present in the dictionary.
+28-10-2023 16:28:30| ERROR - The given key 'WEBHOOK' was not present in the dictionary.
+28-10-2023 16:28:30| ERROR - The given key 'WEBHOOK' was not present in the dictionary.
+28-10-2023 16:28:30| ERROR - The given key 'WEBHOOK' was not present in the dictionary.
+28-10-2023 16:28:31| ERROR - The given key 'WEBHOOK' was not present in the dictionary.
+28-10-2023 16:28:31| ERROR - The given key 'WEBHOOK' was not present in the dictionary.
+28-10-2023 16:28:31| ERROR - The given key 'WEBHOOK' was not present in the dictionary.
+28-10-2023 16:28:31| ERROR - The given key 'WEBHOOK' was not present in the dictionary.
+28-10-2023 16:28:31| ERROR - The given key 'WEBHOOK' was not present in the dictionary.
+28-10-2023 16:28:31| ERROR - The given key 'WEBHOOK' was not present in the dictionary.
+28-10-2023 16:28:31| ERROR - The given key 'WEBHOOK' was not present in the dictionary.
+28-10-2023 16:28:32| ERROR - The given key 'WEBHOOK' was not present in the dictionary.
+28-10-2023 16:28:32| ERROR - The given key 'WEBHOOK' was not present in the dictionary.
+28-10-2023 16:28:32| ERROR - The given key 'WEBHOOK' was not present in the dictionary.
+28-10-2023 16:28:32| ERROR - The given key 'WEBHOOK' was not present in the dictionary.
+29-10-2023 16:29:40| ERROR - The given key 'WEBHOOK' was not present in the dictionary.
+07-10-2023 16:42:06| OK - SignaturesController->Sign
+07-10-2023 16:49:33| OK - SignaturesController->Sign

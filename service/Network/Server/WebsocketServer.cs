@@ -14,26 +14,9 @@ public class WebsocketServer
 
         listener.Start();
 
-        Console.WriteLine($"Server is Running in - {config.Prefix} | {DateTime.UtcNow}");
+        Console.WriteLine($"Server is Running in - {config.Prefix} | {DateTime.UtcNow.ToString("MM-dd-yyy H:mm:ss")}");
 
-         NonBreakableLoop(listener).Wait();
-
-        // var thread = new Thread(async () =>
-        // {
-        //     var config = new Credentials();
-
-        //     var listener = new HttpListener();
-
-        //     listener.Prefixes.Add(config.Prefix);
-
-        //     listener.Start();
-
-        //     Console.WriteLine($"Server is Running in - {config.Prefix} | {DateTime.UtcNow}");
-
-        //     await NonBreakableLoop(listener);
-        // });
-
-        // thread.Start();
+        NonBreakableLoop(listener).Wait();
     }
 
     public void Listen()

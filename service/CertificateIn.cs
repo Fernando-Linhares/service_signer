@@ -4,9 +4,7 @@ namespace Service;
 
 public class CertificateIn
 {
-    public string? Type;
+    public string FileContent { get; set; }
 
-    public string? Path;
-
-    public string? Index;
+    public string Password { get; set; }
 }

@@ -6,12 +6,13 @@ using Parser = Org.BouncyCastle.X509.X509CertificateParser;
 using BouncyCert = Org.BouncyCastle.X509.X509Certificate;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json;
+using Service.Signature;
 
 namespace Service;
 
 public class Signer
 {
-    public static string Sign(CertificateIn certificate, string password, string filepath)
+    public static Statement Sign(int CertificateId, string password, string filepath)
     {
         var env = new Env();
 
@@ -27,20 +28,10 @@ public class Signer
 
             var bytes = File.ReadAllBytes(filepath);
 
-            X509Certificate2? cert = null;
+            var cert = FindCert(CertificateId);
 
-            if(certificate?.Type == "local")
-            {
-                cert = FindCert(certificate?.Index ?? "");
-            }
-
-            if(certificate?.Type == "external")
-            {
-                cert = new X509Certificate2(certificate?.Path ?? "", password);
-            }
-
-            if(cert is null)
-                throw new Exception("Certificate type not found");
+            // Console.WriteLine(cert);
+            // Console.WriteLine(certName);
 
             var parser = new Parser();
 
@@ -108,16 +99,22 @@ public class Signer
             apparence.Acro6Layers = true;
 
             IExternalSignature external = new SignatureExt(cert);
+            Console.WriteLine("OK 1");
 
             MakeSignature.SignDetached(apparence, external, bouncyCert, null, null, null, 0, CryptoStandard.CMS);
+            Console.WriteLine("OK 2");
 
             reader.Close();
 
             stream.Close();
+
+            status = "assinado";
+
         }
         catch(iTextSharp.text.DocumentException document)
         {
             status = "falha";
+            Console.WriteLine(document.Message);
 
             Console.WriteLine(document.Message);
         }
@@ -125,59 +122,84 @@ public class Signer
         {
             status = "falha";
 
+            Console.WriteLine(cryptographic.Message);
+
             Console.WriteLine(cryptographic.InnerException);
         }
         catch(System.IO.IOException io)
         {
             status = "falha";
-
+            Console.WriteLine(io.Message);
             Console.WriteLine(io.InnerException);
         }
         catch (System.Exception generic)
         {
             status = "falha";
+            Console.WriteLine(generic.Message);
 
             Console.WriteLine(generic.InnerException);
         }
-        finally
+
+        Console.WriteLine(status);
+
+        return new Statement
         {
-            status = "assinado";
-        }
-
-        if(!env.KeyIsEmpty("WEBHOOK"))
-            UpdateStatus(status, fileName, env.Get("WEBHOOK"), env.Get("LOG_PATH")).Wait();
-
-        return $"{DateTime.Now}| By {certName}| File: {fileName} | {status.ToUpper()}";
+            Time = DateTime.UtcNow.ToString("mm-dd-yyyy h:i:s"),
+            CertName = certName,
+            FileName = fileName,
+            Status = status.ToUpper()
+        };
     }
 
     public static async Task UpdateStatus(string status, string filename, string? url, string? logpath)
     {
-        var client = new HttpClient();
+        var env = new Env();
 
-        var body = new { DateTime = DateTime.Now, FileName = filename, Status = status };
+        string logPath = env.Get("LOGS_PATH");
 
-        var json = JsonConvert.SerializeObject(body);
+        var now = DateTime.Now.ToString("MM-dd-yyyy");
 
-        var content = new StringContent(json);
+        string logFileName = $"{logPath}/{now}.log";
 
-        var response = await client.PostAsync(url, content);
+        if(!File.Exists(logFileName))
+        {
+            using var fileLog = File.Create(logFileName);
+            fileLog.Close();
+        }
 
-        using var streamWriter = new StreamWriter(File.Open(logpath, FileMode.OpenOrCreate));
+        try
+        {
+            var client = new HttpClient();
 
-        string responseContent = await response.Content.ReadAsStringAsync();
+            var body = new { DateTime = DateTime.Now, FileName = filename, Status = status };
 
-        streamWriter.WriteLine(responseContent);
+            var json = JsonConvert.SerializeObject(body);
 
-        streamWriter.Close();
+            var content = new StringContent(json);
+
+            var response = await client.PostAsync(url, content);
+
+            using var streamWriter = new StreamWriter(File.Open(logpath, FileMode.OpenOrCreate));
+
+            string responseContent = await response.Content.ReadAsStringAsync();
+
+            streamWriter.WriteLine(responseContent);
+
+            streamWriter.Close();
+        }
+        catch (System.Exception exception)
+        {
+            File.AppendAllText(logFileName, $"\n{DateTime.Now.ToString("mm-dd-yyyy H:m:s")}| ERROR - {exception.InnerException}");
+        }
     }
 
-    public static string ListCertificates()
+    public static List<object> ListCertificates()
     {
         var store = new X509Store(StoreName.My, StoreLocation.CurrentUser);
 
         store.Open(OpenFlags.ReadOnly);
 
-        var certList = new List<Dictionary<string, string>>();
+        var certList = new List<object>();
 
         var parser = new Parser();
 
@@ -192,19 +214,19 @@ public class Signer
         {
             var name = getNameByCert(cert);
 
-            certList.Add(new Dictionary<string, string>{
-                ["Subject"] = cert.Subject,
-                ["Issuer"] = cert.Issuer,
-                ["Thumbprint"] = cert.Thumbprint,
-                ["Name"] = name,
-                ["Location"] = $"{store.Location}/{name}"
+            certList.Add(new {
+                Subject = cert.Subject,
+                Issuer = cert.Issuer,
+                Thumbprint = cert.Thumbprint,
+                Name = name,
+                Location = $"{store.Location}/{name}"
             });
         }
 
-        return JsonConvert.SerializeObject(certList);
+        return certList;
     }
 
-    public static void AddCertificate(string filepath, string password)
+    public static object AddCertificate(string filepath, string password)
     {
         try
         {
@@ -218,16 +240,53 @@ public class Signer
 
             store.Close();
 
-            Console.WriteLine($"Certificate added at - {DateTime.Now}");
+            return new
+            {
+                Certificate = cert
+            };
         }
         catch (System.Exception exception)
         {
             Console.WriteLine("Error on add certificate");
-            Console.WriteLine(exception.Message);
+
+            return new 
+            {
+                Error = exception.InnerException
+            };
         }
     }
 
-    private static X509Certificate2 FindCert(string index)
+    public static object AddCertificate(CertificateIn certificate)
+    {
+        try
+        {
+            var cert = new X509Certificate2(certificate.FileContent, certificate.Password);
+
+            var store = new X509Store(StoreName.My, StoreLocation.CurrentUser);
+
+            store.Open(OpenFlags.ReadWrite);
+
+            store.Add(cert);
+
+            store.Close();
+
+            return new
+            {
+                Certificate = cert
+            };
+        }
+        catch (System.Exception exception)
+        {
+            Console.WriteLine("Error on add certificate");
+
+            return new 
+            {
+                Error = exception.InnerException
+            };
+        }
+    }
+
+    public static X509Certificate2 FindCert(int id)
     {
         var store = new X509Store(StoreName.My, StoreLocation.CurrentUser);
 
@@ -242,6 +301,8 @@ public class Signer
 
         store.Close();
 
-        return list[int.Parse(index)];
+        int index = id - 1;
+
+        return list[index];
     }
 }

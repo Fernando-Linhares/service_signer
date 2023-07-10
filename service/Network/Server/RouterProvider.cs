@@ -2,7 +2,6 @@ using System.Net.WebSockets;
 using System.Net;
 using System.Text;
 using Newtonsoft.Json;
-using Service.Attributes;
 
 namespace Service.Network.Server;
 
@@ -21,7 +20,7 @@ public class RouterProvider: IRouter
 
         WebSocket webSocket = webSocketContext.WebSocket;
 
-        byte[] buffer = new byte[1024];
+        byte[] buffer = new byte[90024];
 
         WebSocketReceiveResult result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
 
@@ -29,67 +28,91 @@ public class RouterProvider: IRouter
         {
             string receivedMessage = Encoding.UTF8.GetString(buffer, 0, result.Count);
 
-            var request = JsonConvert.DeserializeObject<Request>(receivedMessage);
-
-            Console.WriteLine(receivedMessage);
+            var request = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, Dictionary<string,string>>>>(receivedMessage);
 
             var routes = new Routes();
 
             foreach(var controller in routes.EnabledControllers)
             {
-                var propInfo = controller.GetType().GetCustomAttributes(true);
+                string className = controller.GetType().Name;
 
-                if(propInfo is null)
-                    throw new NotImplementedException(
-                        $"The annotation WsRoute is not implemented on controller: {controller.GetType()}"
-                    );
+                string routeName = className.Replace("Controller", "");
 
-                WsRoute? route = (WsRoute?) propInfo[0];
-
-                if(route is null)
-                    throw new KeyNotFoundException();
-
-                Console.WriteLine(request.Attributes);
-                Console.WriteLine(request.Attributes.Keys);
-                Console.WriteLine(request.Attributes.Keys.Contains(route.Content));
-
-                if(request.Attributes.Keys.Contains(route.Content))
+                if(request.Keys.Contains(routeName))
                 {
-                    var matchAttrs = request.Attributes[route.Content];
+                    var env = new Env();
 
-                    var listMethodInfo = controller.GetType().GetMethods().ToList();
+                    string logPath = env.Get("LOGS_PATH") ?? "";
 
-                    Console.WriteLine("Chegou aqui 1");
+                    var now = DateTime.Now.ToString("MM-dd-yyyy");
 
-                    foreach(var methodInfo in listMethodInfo)
+                    string logFileName = $"{logPath}/{now}.log";
+
+                    if(!File.Exists(logFileName))
                     {
-                        var nameMethod = methodInfo.Name;
+                        using var fileLog = File.Create(logFileName);
 
-                        if(matchAttrs.Keys.Contains(nameMethod))
+                        fileLog.Close();
+                    }
+
+                    try
+                    {
+                        var matchAttrs = request[routeName];
+
+                        var listMethodInfo = controller.GetType().GetMethods().ToList();
+
+                        foreach(var methodInfo in listMethodInfo)
                         {
-                            Console.WriteLine("Chegou aqui 1");
+                            var nameMethod = methodInfo.Name;
 
-                            var attrs = matchAttrs[nameMethod];
+                            if(matchAttrs.Keys.Contains(nameMethod))
+                            {
+                                var attrs = matchAttrs[nameMethod];
 
-                            controller.Form = attrs;
+                                controller.Form = attrs;
 
-                            var response = await (Task<Response>?) methodInfo.Invoke(controller, null);
+                                var response = await (Task<Response>?) methodInfo.Invoke(controller, null);
 
-                            var responseContent = response.ToString();
+                                var responseContent = response.ToString();
 
-                            byte[] responseBytes = Encoding.UTF8.GetBytes(responseContent);
+                                byte[] responseBytes = Encoding.UTF8.GetBytes(responseContent);
 
-                            await webSocket.SendAsync(new ArraySegment<byte>(responseBytes), WebSocketMessageType.Text, true, CancellationToken.None);
+                                await webSocket.SendAsync(new ArraySegment<byte>(responseBytes), WebSocketMessageType.Text, true, CancellationToken.None);
 
-                            buffer = new byte[1024];
+                                buffer = new byte[90024];
 
-                            result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
+                                result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
+
+                                File.AppendAllText(logFileName, $"\n{DateTime.Now.ToString("MM-dd-yyyy H:mm:ss")}| OK - {routeName}Controller->{nameMethod}");
+                            }
                         }
+                    }
+                    catch (System.Exception exception)
+                    {
+                        File.AppendAllText(logFileName, $"\n{DateTime.Now.ToString("MM-dd-yyyy H:mm:s")}| ERROR - {exception.Message}");
+                    
+                        await webSocket.CloseAsync(result.CloseStatus.Value, result.CloseStatusDescription, CancellationToken.None);
+                    }
+                    finally
+                    {
+                        Console.WriteLine($"REQUEST - {routeName} | TIME - {DateTime.Now.ToString("MM-dd-yyyy H:mm:ss")}");
                     }
                 }
             }
-        }
 
+        }
+    
         await webSocket.CloseAsync(result.CloseStatus.Value, result.CloseStatusDescription, CancellationToken.None);
+    }
+
+    public Response ErrorNotFound()
+    {
+        var response = new Response();
+        
+        response.Attributes = new {
+            Error = "Route not found"
+        };
+
+        return response;
     }
 }
