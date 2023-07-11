@@ -4,7 +4,7 @@ function config() {
 
     const protocolo = 'ws';
 
-    const port = '9735';
+    const port = '2514';
 
     const websocket = { protocolo,  host, port };
 
@@ -23,27 +23,28 @@ function signer() {
 
     instance.disconect = disconect_websocket_server.bind({ state });
 
+    instance.state = state;
+
     instance.is_connected = state?.is_connected;
 
     instance.sign = sign_pdf.bind({ state });
 
-    instance.signAll = sign_all_pdf.bind({ state });
+    // instance.signAl  l = sign_all_pdf.bind({ state });
 
     instance.certificate = certificate_instance();
 
     return instance;
 }
 
-function sign_all_pdf() {
-    if(state?.is_connected) {
+// function sign_all_pdf(body) {
+//     if(this.state?.is_connected)
+//         for(var file of file_pdf_list)
+//             sign_pdf(body);
+// }
 
-    }
-}
+function sign_pdf(body) {
 
-function sign_pdf() {
-    if(state?.is_connected) {
-
-    }
+    this.state.ws.send(JSON.stringify(body));
 }
 
 function certificate() {
@@ -104,6 +105,8 @@ function connect_websocket_server() {
     ws.addEventListener('error', onError.bind({ state }));
 
     ws.addEventListener('message', onMessage.bind({ state }))
+
+    this.state.ws = ws;
 }
 
 function disconect_websocket_server()
@@ -125,4 +128,30 @@ function onError(event) {
 
 function onMessage(event) {
 
+}
+
+function file_pdf(filename, content)
+{
+    const instance = {};
+
+    instance.filename = filename;
+
+    instance.content = content;
+
+    instance.toBlob = convertToBlob.bind({file:{instance}});
+
+    instance.toString = () => instance.content;
+
+    return instance;
+}
+
+function convertToBlob()
+{
+    let data = this.file;
+
+    const blob =  new Blob([data.content], { type: 'application/pdf' });
+
+    blob.name = data.filename;
+
+    return blob;
 }

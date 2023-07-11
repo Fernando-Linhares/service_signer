@@ -6,7 +6,7 @@ public class WebsocketServer
 {
     public void BootServer()
     {
-         var config = new Credentials();
+        var config = new Credentials();
 
         var listener = new HttpListener();
 

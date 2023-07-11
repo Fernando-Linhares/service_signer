@@ -17,13 +17,17 @@ public class Signer
     {
         var env = new Env();
 
-        string status = "pendente";
+        string status = "pending";
+
+        string message = "Pending signature";
 
         string fileName = "Not Found";
 
         string certName = "Not Found";
 
         string signedfilename = "Not Found";
+
+        int statusCode = 404;
 
         try
         {
@@ -108,36 +112,43 @@ public class Signer
 
             stream.Close();
 
-            status = "assinado";
+            status = "signed";
 
+            message = "signed successfully";
+
+            statusCode = 200;
         }
         catch(iTextSharp.text.DocumentException document)
         {
-            status = "falha";
-            Console.WriteLine(document.Message);
+            status = "fail";
+
+            message = document.Message;
+
+            statusCode = 404;
 
             Console.WriteLine(document.Message);
         }
         catch(System.Security.Cryptography.CryptographicException cryptographic)
         {
-            status = "falha";
+            statusCode = 500;
 
-            Console.WriteLine(cryptographic.Message);
+            status = "fail";
 
-            Console.WriteLine(cryptographic.InnerException);
+            message = cryptographic.Message;
         }
         catch(System.IO.IOException io)
         {
-            status = "falha";
-            Console.WriteLine(io.Message);
-            Console.WriteLine(io.InnerException);
+            statusCode = 500;
+
+            status = "fail";
+
+            message = io.Message;
         }
         catch (System.Exception generic)
         {
-            status = "falha";
-            Console.WriteLine(generic.Message);
+            statusCode = 500;
 
-            Console.WriteLine(generic.InnerException);
+            status = "fail";
         }
 
         byte[] signedBytes = await File.ReadAllBytesAsync(signedfilename);

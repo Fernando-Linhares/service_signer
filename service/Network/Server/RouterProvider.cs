@@ -86,20 +86,33 @@ public class RouterProvider: IRouter
                                 File.AppendAllText(logFileName, $"\n{DateTime.Now.ToString("MM-dd-yyyy H:mm:ss")}| OK - {routeName}Controller->{nameMethod}");
                             }
                         }
+
+                        Console.WriteLine($"REQUEST - {routeName} | TIME - {DateTime.Now.ToString("MM-dd-yyyy H:mm:ss")}");
                     }
                     catch (System.Exception exception)
                     {
                         File.AppendAllText(logFileName, $"\n{DateTime.Now.ToString("MM-dd-yyyy H:mm:s")}| ERROR - {exception.Message}");
-                    
-                        await webSocket.CloseAsync(result.CloseStatus.Value, result.CloseStatusDescription, CancellationToken.None);
-                    }
-                    finally
-                    {
-                        Console.WriteLine($"REQUEST - {routeName} | TIME - {DateTime.Now.ToString("MM-dd-yyyy H:mm:ss")}");
+
+                        var response = new Response
+                        {
+                            Attributes = new
+                            {
+                                Error = exception.Message,
+                            }
+                        };
+
+                        var responseContent = response.ToString();
+
+                        byte[] responseBytes = Encoding.UTF8.GetBytes(responseContent);
+
+                        await webSocket.SendAsync(new ArraySegment<byte>(responseBytes), WebSocketMessageType.Text, true, CancellationToken.None);
+
+                        buffer = new byte[90024];
+
+                        result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
                     }
                 }
             }
-
         }
     
         await webSocket.CloseAsync(result.CloseStatus.Value, result.CloseStatusDescription, CancellationToken.None);
