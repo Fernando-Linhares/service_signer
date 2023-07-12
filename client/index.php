@@ -20,7 +20,7 @@
             <div class="card-content has-text-centered">
                 <p class="subtitle">Assinatura Digital</p>
                 <div class="content" >
-                    <button class="button is-info actived" id="btn-lc">
+                    <button class="button is-info" id="btn-sgn">
                         <i class="material-icons">assignment_turned_in</i>
                     </button>
                 </div>
@@ -32,15 +32,16 @@
             </p>
         </footer>
     </div>
-    <!-- <script src="./script.js"></script> -->
     <script type="module">
-       import Modal from './lib/Modal.js';
-
-        const modal = new Modal();
-
-        modal.show();
-        console.log(modal)
-
+        import signer from './signer.js';
+        
+        // {setup, content, pdfFile, list_certificates, certificate}
+        signer({
+            button: document.querySelector('#btn-sgn')
+        });
     </script>
+    <!-- <script type="module">
+     
+    </script> -->
 </body>
 </html>

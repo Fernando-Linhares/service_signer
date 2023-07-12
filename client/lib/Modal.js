@@ -9,24 +9,31 @@ export default class Modal
         enabled_add_files_pfx: true,
     }
 
-    pdfFile = [
-        // { name:'ARQUIVO EXEMPLO 1' },
-        // { name:'ARQUIVO EXEMPLO 2' },
-        // { name:'ARQUIVO EXEMPLO 3' },
-        // { name:'ARQUIVO EXEMPLO 4' },
-    ];
+    pdfFile = [];
 
     certificate = '';
 
-    list_certificates = [
-        { name:'CERTIFICADO EXEMPLO 1' },
-        { name:'CERTIFICADO EXEMPLO 2' },
-        { name:'CERTIFICADO EXEMPLO 3' },
-        { name:'CERTIFICADO EXEMPLO 5' },
-        { name:'CERTIFICADO EXEMPLO 6' },
-        { name:'CERTIFICADO EXEMPLO 7' },
-        { name:'CERTIFICADO EXEMPLO 8' },
-    ];
+    list_certificates = [];
+
+    constructor(config)
+    {
+        let {setup, content, pdfFile, list_certificates, certificate} = config;
+
+        if(setup)
+            this.setup = setup;
+
+        if(content)
+            this.content = content;
+
+        if(pdfFile)
+            this.pdfFile = pdfFile;
+
+        if(list_certificates)
+            this.list_certificates = list_certificates;
+
+        if(certificate)
+            this.certificate = certificate;
+    }
 
     show()
     {
@@ -41,16 +48,21 @@ export default class Modal
             const buttonCertificate = document.querySelector('#btn-certificate');
 
             const buttonPdf = document.querySelector('#btn-pdf-file');
+            
+            const buttonSign = document.querySelector('#save');
 
             buttonCertificate.addEventListener('click', this.showMiniatureModalAllCertificates.bind(this));
 
             buttonPdf.addEventListener('click', this.showMiniatureModalAllPdfFiles.bind(this));
 
+            buttonSign.addEventListener('click', this.signFilesdWithCurrentCertificate.bind(this));
+
             background.addEventListener('click', (event) => {
-                if(event.target.classList.contains('bg-modal-s')) {
+                if(event.target.classList.contains('bg-modal-s'))
                     this.content.style.display = 'none'
-                }
             }, false);
+
+            
 
             this.content = md;
         }
@@ -182,6 +194,7 @@ export default class Modal
                 Sign
             </button>
             <div
+                id="bg-progress-bar"
                 style="
                     display: none;
                     border-radius: 4px;
@@ -193,8 +206,9 @@ export default class Modal
                     margin: auto;
                     text-align: center;
                 "
-            > 
+            >
             <div 
+                id="bd-progress-bar"
                 style="
                     background: rgba(0, 140, 0, 0.8);
                     width: 80%;
@@ -237,7 +251,6 @@ export default class Modal
 
     showMiniatureModalAllPdfFiles(event)
     {
-
         if(this.pdfFile.length == 0 && this.setup.enabled_add_files_pdf){
 
             this.showModalAddPdfFile();
@@ -245,16 +258,99 @@ export default class Modal
             return;
         }
 
-        let modal = document.createElement('div'); 
+        let listageFiles = '<div>';
 
-        modal.innerHTML = this.buildMiniatureByList(this.pdfFile.map(file => {
 
-            return `
-            <div style="padding: 10px;">
-                <label>${file.name}</label>
-            </div>
-            <hr>`;
-        }));
+        for(let file of this.pdfFile) {
+            listageFiles += `<div
+                class="pdf-splited-button"
+                style="
+                    cursor: pointer;
+                    border: solid 1px rgba(0,0,0,0.2);
+                    margin: 8px;
+                "
+            >${file.name}</div>`;
+        }
+
+        listageFiles += '</div>';
+
+        let modal = document.createElement('div');
+
+        modal.innerHTML = `<div
+                class="bg-minature-modal-s"
+                style="
+                        position: fixed;
+                        top: 0;
+                        bottom: 0;
+                        left: 0;
+                        right: 0;
+                        z-index: 1000000000;
+                        background: rgba(0,0,0,0.4);
+                    "
+                >
+                <div
+                    class="bd-minature-modal-s"
+                    style="
+                        text-align: center;
+                        margin: auto;
+                        transition: all 0.1s;
+                        background: white;
+                        width: 5%;
+                        padding: 1px;
+                        position: relative;
+                        top: 100px;
+                        border-radius: 5px;
+                    "
+                >
+                    <div style="padding: 10px;  width: 100%; height: 100%;">
+                        <div
+                            style="
+                                display: flex;
+                                transition: all 1s;
+                                width: 100%;
+                                height: 100%;
+                            "
+                        >
+                            <div
+                                style="
+                                    flex: 1;
+                                    transition: all 1s;
+                                    border: solid 1px rgba(0,0,0,0.2);
+                                    heigh: 100%;
+                                    overflow: scroll;
+                                "
+                            >
+                                ${listageFiles}
+                            </div>
+                            <div style="flex: 3">
+                                <div id="image-pdf"
+                                    style="
+                                        flex: 3;
+                                        background: rgba(0, 0, 0, 0.4);
+                                        width: 90%;
+                                        height: 100%;
+                                        margin-left: 30px;
+                                    "
+                                >
+
+                                </div>
+                                <div id="image-pdf-reference"
+                                    style="
+                                        display: none;
+                                        flex: 3;
+                                        background: rgba(0, 0, 0, 0.4);
+                                        width: 90%;
+                                        height: 100%;
+                                        margin-left: 30px;
+                                    "
+                                ></div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>`
+
 
         document.body.appendChild(modal);
 
@@ -269,9 +365,36 @@ export default class Modal
 
         setTimeout(()=> {
             let bd = document.querySelector('.bd-minature-modal-s');
-            bd.style.width = '30%';
+            bd.style.width = '70%';
+            bd.style.height = '70%';
             bd.style.padding = '10px';
         }, 100);
+
+        let pdfSplitedElements = document.querySelectorAll('.pdf-splited-button');
+
+        for(let filepdfelement of pdfSplitedElements) {
+            filepdfelement.addEventListener('click', (event) => {
+
+                let el = event.target;
+
+                let currentFile = this.pdfFile.filter(f => f.name == el.textContent);
+
+                if(currentFile.length > 0) {
+                    let blob = currentFile[0].toBlob();
+                    let url = URL.createObjectURL(blob);
+                    let iframe = document.createElement('iframe');
+                    iframe.style.width = '100%';
+                    iframe.style.height = '100%';
+                    iframe.src = url;
+                    let container = document.querySelector('#image-pdf');
+                    let reference = document.querySelector('#image-pdf-reference');
+                    container.innerHTML = '';
+                    container.appendChild(iframe);
+                    container.style.display = 'block';
+                    reference.style.display = 'none';
+                }
+            });
+        }
     }
 
     showMiniatureModalAllCertificates(event)
@@ -279,6 +402,8 @@ export default class Modal
         let modal = document.createElement('div');
 
         modal.innerHTML = '';
+
+        let list_certificates = this.list_certificates;
 
         modal.innerHTML = this.buildMiniatureByList(this.list_certificates.map(cert =>
         {
@@ -311,10 +436,21 @@ export default class Modal
 
         const radios = document.querySelectorAll('#cert-radio');
 
+        let sanitize = (name) => {
+            if(name.length > 20)
+                return name.substring(0, 20) + '...';
+
+            return name;
+        };
+
         radios.forEach(radio => radio.addEventListener('change', (event) =>{
+            
             this.certificate = event.target.value;
 
-            document.querySelector('#btn-certificate').innerText = this.certificate;
+            let certificateBtn = document.querySelector('#btn-certificate');
+
+            certificateBtn.innerText = sanitize(this.certificate);
+            certificateBtn.title = this.certificate;
         }));
 
         setTimeout(()=> {
@@ -459,7 +595,6 @@ export default class Modal
                     display: none;
                 "
             >
-
             <label for="filepdf" id="label-input-file-pdf"
                 style="
                     background: rgba(0,0,200,0.6);
@@ -472,10 +607,21 @@ export default class Modal
             >
                 Select Files
             </label>
-            
             <hr>
-            <br>
-            <div id="file-updated-image"></div>
+            <div
+                id="file-updated-image-reference"
+                style="
+                    display: none;
+                    background: rgba(0,0,0,0.3);
+                    border-radius: 4px;
+                    padding 30px;
+                    height: 100px;
+                    width: 80%;
+                    text-align: center;
+                    margin: auto;
+                "
+            ></div>
+            <div id="file-updated-image" style="display: none;"></div>
             <button
                 id="save-file-pdf"
                 style="
@@ -484,7 +630,8 @@ export default class Modal
                     border: none;
                     border-radius: 5px;
                     padding: 10px;
-
+                    position: relative;
+                    top: 8px;
                     "
             >
                 Save
@@ -509,35 +656,80 @@ export default class Modal
         })
 
         let btnSave = document.querySelector('#save-file-pdf');
+
         let inputFile = document.querySelector('#filepdf');
 
         btnSave.addEventListener('click', (event) => {
-            this.getFiles(inputFile);
+            let btnPdfFile = document.querySelector('#btn-pdf-file');
+
+            let files = inputFile.files;
+
+            if(files.length > 0) {
+
+                this.getFiles(inputFile);
+    
+                if(files.length > 1){
+                    let nameInput = sanitize(files[0].name) + ' (+'+(files.length - 1)+')';
+                    btnPdfFile.innerText = nameInput;
+                    btnPdfFile.title = files[0].name +  ' (+'+(files.length - 1)+')';
+                }
+
+                if(files.length == 1){
+                    let nameInput = sanitize(files[0].name);
+                    btnPdfFile.innerText = nameInput;
+                    btnPdfFile.title = files[0].name;
+                }
 
                 modal.style.display = 'none';
 
                 modal.remove();
+            }
         });
 
         let bd = document.querySelector('.bd-add-file-modal-s');
+
+        let imageContainerReference = document.querySelector('#file-updated-image-reference');
 
         setTimeout(() => {
             bd.style.width = '30%';
         },100);
 
+        let sanitize = (name) => {
+            if(name.length > 20)
+                return name.substring(0, 20) + '...';
+
+            return name;
+        };
+
+        imageContainerReference.style.display = 'block';
+
         let labelInputFile = document.querySelector('#label-input-file-pdf');
 
         inputFile.addEventListener('change', (event) => {
-
+           
            let imageContainer = document.querySelector('#file-updated-image');
+
+           imageContainer.style.display = 'block'
 
            let files = event.target.files;
 
-           if(files.length > 1)
-                labelInputFile.innerText = files[0].name + ' (+'+(files.length - 1)+')';
+           imageContainerReference.style.display = 'none';
 
-           if(files.length == 1)
-                labelInputFile.innerText = files[0].name
+           if(files.length > 1) {
+               let nameInput = sanitize(files[0].name) + ' (+'+(files.length - 1)+')';
+
+               labelInputFile.innerText = nameInput;
+
+               labelInputFile.title = files[0].name;
+           }
+
+           if(files.length == 1) {
+                let nameInput = sanitize(files[0].name);
+
+                labelInputFile.innerText = nameInput;;
+
+                labelInputFile.title = files[0].name;
+           }
 
             for(let file of files) {
                 let iframe = document.createElement('iframe');
@@ -547,7 +739,47 @@ export default class Modal
                 imageContainer.appendChild(iframe);
             }
         });
+    }
 
+    async signFilesdWithCurrentCertificate()
+    {
+        if(this.certificate && (this.pdfFile.length > 0)) {
+
+            const buttonSign = document.querySelector('#save');
+
+            const background =  document.querySelector('#bg-progress-bar');
+
+            const body = document.querySelector('#bd-progress-bar');
+
+            const buttonDownlod = document.querySelector('#download-signed');
+
+            buttonSign.style.display = 'none';
+
+            background.style.display = 'block';
+
+            for(let i = 0; i <= this.pdfFile.length; i++) {
+
+                let percent = ( i * 100 ) / this.pdfFile.length;
+                
+                if(i == this.pdfFile.length){
+                    body.style.width = percent + '%';
+                    break;
+                }
+
+                // let response = await this.requestSignature(this.pdfFile[i], this.certificate);
+
+                body.style.width = percent + '%';
+            }
+
+            background.style.display = 'none';
+
+            buttonDownlod.style.display = 'block';
+        }
+    }
+
+    async requestSignature(file, cert)
+    {
 
     }
+
 }

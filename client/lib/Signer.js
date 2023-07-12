@@ -6,14 +6,39 @@ export default class Signer
 
     password = {};
 
-    constructor()
-    {
-        this._ws = new WebSocket("ws://localhost:2514/");
+    connect() {
+        return new Promise((resolve,reject) => {
+            try
+            {
+                this._ws = new WebSocket("ws://localhost:2514/");
 
-        this._ws.onmessage = (event) => this.response = event.data;
+                this._ws.onopen = (event) => resolve(event.data);
+
+            } catch (error) {
+                reject(error)
+            }
+        });
     }
 
-    save()
+    listCertificates() {
+        return new Promise((resolve, reject) => {
+            try
+            {
+                this.request = this._ws.send(JSON.stringify({
+                    Certificates: {
+                        Index: {}
+                    }
+                }))
+
+                this._ws.onmessage = (event) => resolve(JSON.parse(event.data));
+
+            } catch (error) {
+                reject(error)
+            }
+        });
+    }
+
+    sign()
     {
         this.request = {
             Signature: {

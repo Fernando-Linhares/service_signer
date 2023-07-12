@@ -18,7 +18,15 @@ export default class File
 
     toBlob()
     {
-        const blob =  new Blob([this.content], { type: 'application/pdf' });
+        let content = atob(this.content);
+
+        let byteArray = new Uint8Array(content.length);
+
+        for(let i = 0; i < content.length; i++) {
+            byteArray[i] = content.charCodeAt(i);
+        }
+
+        let blob = new Blob([byteArray], {type: 'application/pdf'});
 
         blob.name = this.filename;
 
