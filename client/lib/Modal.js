@@ -4,6 +4,11 @@ export default class Modal
 {
     content = null;
 
+    setup = {
+        enabled_add_files_pdf: true,
+        enabled_add_files_pfx: true,
+    }
+
     pdfFile = [
         // { name:'ARQUIVO EXEMPLO 1' },
         // { name:'ARQUIVO EXEMPLO 2' },
@@ -203,7 +208,28 @@ export default class Modal
                 "
             ></div>
             </div>
+                <button
+                    id="download-signed"
+                    style="
+                        cursor: pointer;
+                        display: none;
+                        border-radius: 4px;
+                        border: solid 1px white;
+                        width: 30%;
+                        height: 10%;
+                        position: relative;
+                        top: 50%;
+                        margin: auto;
+                        text-align: center;
+                        color: white;
+                        background: rgba(200, 0, 0, 0.6);
+                        box-shadow: none;
+                    "
+                >
+                    Download
+                </button>
             </div>
+
         </div>`;
 
         return html;
@@ -212,7 +238,7 @@ export default class Modal
     showMiniatureModalAllPdfFiles(event)
     {
 
-        if(this.pdfFile.length == 0){
+        if(this.pdfFile.length == 0 && this.setup.enabled_add_files_pdf){
 
             this.showModalAddPdfFile();
 
@@ -428,12 +454,41 @@ export default class Modal
         let modal = document.createElement('div');
 
         let content = `
-            <input type="file" name="filepdf" id="filepdf" multiple>
+            <input type="file" name="filepdf" id="filepdf" multiple 
+                style="
+                    display: none;
+                "
+            >
+
+            <label for="filepdf" id="label-input-file-pdf"
+                style="
+                    background: rgba(0,0,200,0.6);
+                    border-radius: 5px;
+                    padding: 10px;
+                    color:white;
+                    position: relative;
+                    top: 20px;
+                "
+            >
+                Select Files
+            </label>
+            
             <hr>
             <br>
-            <button id="save-file-pdf">
+            <div id="file-updated-image"></div>
+            <button
+                id="save-file-pdf"
+                style="
+                    background: rgba(0,0,200,0.6);
+                    color: white;
+                    border: none;
+                    border-radius: 5px;
+                    padding: 10px;
+
+                    "
+            >
                 Save
-            <button>
+            </button>
         `;
 
         modal.innerHTML = this.templateAddFile(content);
@@ -454,12 +509,45 @@ export default class Modal
         })
 
         let btnSave = document.querySelector('#save-file-pdf');
+        let inputFile = document.querySelector('#filepdf');
 
         btnSave.addEventListener('click', (event) => {
-            this.getFiles(document.querySelector('#filepdf'));
-        
-            console.log(this.pdfFile)
+            this.getFiles(inputFile);
+
+                modal.style.display = 'none';
+
+                modal.remove();
         });
+
+        let bd = document.querySelector('.bd-add-file-modal-s');
+
+        setTimeout(() => {
+            bd.style.width = '30%';
+        },100);
+
+        let labelInputFile = document.querySelector('#label-input-file-pdf');
+
+        inputFile.addEventListener('change', (event) => {
+
+           let imageContainer = document.querySelector('#file-updated-image');
+
+           let files = event.target.files;
+
+           if(files.length > 1)
+                labelInputFile.innerText = files[0].name + ' (+'+(files.length - 1)+')';
+
+           if(files.length == 1)
+                labelInputFile.innerText = files[0].name
+
+            for(let file of files) {
+                let iframe = document.createElement('iframe');
+                let blob = new Blob([file], { type: "application/pdf" });
+                let url = URL.createObjectURL(blob);
+                iframe.src = url;
+                imageContainer.appendChild(iframe);
+            }
+        });
+
 
     }
 }
