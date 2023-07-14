@@ -3,7 +3,7 @@ using iTextSharp.text.pdf.security;
 using System.Security.Cryptography.X509Certificates;
 using Certificate = System.Security.Cryptography.X509Certificates.X509Certificate2;
 
-namespace Service.Signature;
+namespace Service.SignatureUsage;
 
 public class SignatureExt : IExternalSignature
 {

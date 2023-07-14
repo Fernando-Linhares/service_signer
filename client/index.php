@@ -32,16 +32,16 @@
             </p>
         </footer>
     </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.6.0/jszip.min.js"></script>
+
     <script type="module">
         import signer from './signer.js';
-        
+
         // {setup, content, pdfFile, list_certificates, certificate}
         signer({
             button: document.querySelector('#btn-sgn')
         });
     </script>
-    <!-- <script type="module">
-     
-    </script> -->
 </body>
 </html>

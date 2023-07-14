@@ -9,54 +9,57 @@ public class RouterProvider: IRouter
 {
     private HttpListenerContext _context;
 
+    private Logger _logger;
+
+    private readonly Env _env = new Env();
+
+    public int BufferSize { get; set; }
+
     public void UseContext(HttpListenerContext context)
     {
         _context = context;
+
+        string logPath = _env.Get("LOGS_PATH") ?? "";
+
+        BufferSize = int.Parse(_env.Get("LIMIT_SIZE_BYTES_REQUEST"));
+
+        _logger = new Logger(logPath);
     }
 
     public async Task Dispatch()
     {
-        HttpListenerWebSocketContext webSocketContext = await _context.AcceptWebSocketAsync(null);
+        var env = new Env();
 
-        WebSocket webSocket = webSocketContext.WebSocket;
-
-        byte[] buffer = new byte[90024];
-
-        WebSocketReceiveResult result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
-
-        while (!result.CloseStatus.HasValue)
+        try
         {
-            string receivedMessage = Encoding.UTF8.GetString(buffer, 0, result.Count);
+            Console.WriteLine(_context.Request.ContentLength64);
 
-            var request = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, Dictionary<string,string>>>>(receivedMessage);
+            HttpListenerWebSocketContext webSocketContext = await _context.AcceptWebSocketAsync(null);
 
-            var routes = new Routes();
+            WebSocket webSocket = webSocketContext.WebSocket;
 
-            foreach(var controller in routes.EnabledControllers)
+            byte[] buffer = new byte[BufferSize];
+
+            WebSocketReceiveResult result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
+
+            while (!result.CloseStatus.HasValue)
             {
-                string className = controller.GetType().Name;
+                string receivedMessage = Encoding.UTF8.GetString(buffer, 0, result.Count);
+                
+                Console.WriteLine("Len - "+buffer.Length);
+                Console.WriteLine(receivedMessage);
+                var request = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, Dictionary<string,string>>>>(receivedMessage);
 
-                string routeName = className.Replace("Controller", "");
+                var routes = new Routes();
 
-                if(request.Keys.Contains(routeName))
+                foreach(var controller in routes.EnabledControllers)
                 {
-                    var env = new Env();
+                    string className = controller.GetType().Name;
 
-                    string logPath = env.Get("LOGS_PATH") ?? "";
+                    string routeName = className.Replace("Controller", "");
 
-                    var now = DateTime.Now.ToString("MM-dd-yyyy");
-
-                    string logFileName = $"{logPath}/{now}.log";
-
-                    if(!File.Exists(logFileName))
-                    {
-                        using var fileLog = File.Create(logFileName);
-
-                        fileLog.Close();
-                    }
-
-                    try
-                    {
+                    if(request.Keys.Contains(routeName))
+                    {   
                         var matchAttrs = request[routeName];
 
                         var listMethodInfo = controller.GetType().GetMethods().ToList();
@@ -79,43 +82,39 @@ public class RouterProvider: IRouter
 
                                 await webSocket.SendAsync(new ArraySegment<byte>(responseBytes), WebSocketMessageType.Text, true, CancellationToken.None);
 
-                                buffer = new byte[90024];
+                                buffer = new byte[BufferSize + responseBytes.Length];
 
                                 result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
 
-                                File.AppendAllText(logFileName, $"\n{DateTime.Now.ToString("MM-dd-yyyy H:mm:ss")}| OK - {routeName}Controller->{nameMethod}");
+                                _logger.Write($"{DateTime.Now.ToString("MM-dd-yyyy H:mm:ss")}| OK - {routeName}Controller -> {nameMethod}");
                             }
                         }
 
                         Console.WriteLine($"REQUEST - {routeName} | TIME - {DateTime.Now.ToString("MM-dd-yyyy H:mm:ss")}");
                     }
-                    catch (System.Exception exception)
-                    {
-                        File.AppendAllText(logFileName, $"\n{DateTime.Now.ToString("MM-dd-yyyy H:mm:s")}| ERROR - {exception.Message}");
-
-                        var response = new Response
-                        {
-                            Attributes = new
-                            {
-                                Error = exception.Message,
-                            }
-                        };
-
-                        var responseContent = response.ToString();
-
-                        byte[] responseBytes = Encoding.UTF8.GetBytes(responseContent);
-
-                        await webSocket.SendAsync(new ArraySegment<byte>(responseBytes), WebSocketMessageType.Text, true, CancellationToken.None);
-
-                        buffer = new byte[90024];
-
-                        result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
-                    }
                 }
             }
+
+            await webSocket.CloseAsync(result.CloseStatus.Value, result.CloseStatusDescription, CancellationToken.None);
         }
-    
-        await webSocket.CloseAsync(result.CloseStatus.Value, result.CloseStatusDescription, CancellationToken.None);
+        catch (System.Exception exception)
+        {
+            Console.WriteLine(exception.Message);
+
+            _logger.Write($"{DateTime.Now.ToString("MM-dd-yyyy H:mm:s")}| ERROR - {exception.Message}");
+
+            var response = new Response
+            {
+                Attributes = new
+                {
+                    Error = exception.Message,
+                }
+            };
+
+            var responseContent = response.ToString();
+
+            byte[] responseBytes = Encoding.UTF8.GetBytes(responseContent);
+        }
     }
 
     public Response ErrorNotFound()

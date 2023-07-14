@@ -1,4 +1,4 @@
-namespace Service.Signature;
+namespace Service.SignatureUsage;
 
 public class Statement
 {

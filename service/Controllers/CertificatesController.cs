@@ -28,20 +28,4 @@ public class CertificatesController : Controller
             certificates = Signer.ListCertificates()
         });
     }
-
-    // public async Task<Response> Update()
-    // {
-
-    // }
-
-    // public async Task<Response> Delete()
-    // {
-    //     var result = Signer.AddCertificate(new
-    //     {
-    //         FileContent = Form["Content"],
-    //         Password = Form["Password"]
-    //     });
-
-    //    return await Send(result);
-    // }
 }

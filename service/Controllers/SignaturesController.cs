@@ -7,22 +7,20 @@ namespace Service.Controllers;
 
 public class SignaturesController: Controller
 {
-    public async Task<Response> Sign()
+    private Logger _logger { get; set; }
+
+    public SignaturesController()
     {
         var env = new Env();
 
         string logPath = env.Get("LOGS_PATH") ?? "";
 
-        var now = DateTime.Now.ToString("MM-dd-yyyy");
+        _logger = new Logger(logPath);
+    }
 
-        string logFileName = $"{logPath}/{now}.log";
-
-        if(!File.Exists(logFileName))
-        {
-            using var fileLog = File.Create(logFileName);
-
-            fileLog.Close();
-        }
+    public async Task<Response> Sign()
+    {
+        var env = new Env();
 
         try
         {
@@ -36,12 +34,12 @@ public class SignaturesController: Controller
 
             if(!env.KeyIsEmpty("WEBHOOK"))
                 await Signer.UpdateStatus(result.Status, Form["FileName"], env.Get("WEBHOOK"), env.Get("LOG_PATH"));
-
+            
             return await Send(result);
         }
         catch (System.Exception exception)
         {
-            await File.AppendAllTextAsync(logFileName, exception.Message);
+            _logger.Write(exception.Message);
 
             throw;
         }
@@ -53,13 +51,22 @@ public class SignaturesController: Controller
 
         string path = $"{env.Get("PDFS_PATH")}/{filename}";
 
-        using var fs = File.Create(path);
+        try
+        {
+            using var fs = File.Create(path);
 
-        fs.Close();
+            fs.Close();
 
-        var content = Convert.FromBase64String(filecontent);
+            var content = Convert.FromBase64String(filecontent);
 
-        await File.WriteAllBytesAsync(path, content);
+            await File.WriteAllBytesAsync(path, content);
+        }
+        catch (System.Exception exception)
+        {
+            _logger.Write(exception.Message);
+
+            throw;
+        }
 
         return path;
     }

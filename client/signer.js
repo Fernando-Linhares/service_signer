@@ -24,6 +24,8 @@ async function signer(setup) {
     })
     .filter(cert => cert.name !== 'localhost')
 
+    setup.signatureRequest = async (file, certificate, password) => await signator.sign(file, certificate, password);
+ 
     let modal = new Modal(setup); 
 
     setup.button.addEventListener('click', executeSignature.bind({ modal, signator }));

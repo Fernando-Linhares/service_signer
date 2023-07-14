@@ -11,13 +11,17 @@ export default class Modal
 
     pdfFile = [];
 
+    signedFiles = [];
+
     certificate = '';
 
     list_certificates = [];
 
+    clientSignatureRequest;
+
     constructor(config)
     {
-        let {setup, content, pdfFile, list_certificates, certificate} = config;
+        let {setup, content, pdfFile, list_certificates, certificate, signatureRequest} = config;
 
         if(setup)
             this.setup = setup;
@@ -33,6 +37,11 @@ export default class Modal
 
         if(certificate)
             this.certificate = certificate;
+
+        if(!signatureRequest)
+            console.error('field "signatureRequest" is required in config form');
+        else
+            this.clientSignatureRequest = signatureRequest
     }
 
     show()
@@ -139,7 +148,39 @@ export default class Modal
                 Signature
             </h2>
 
-            <div style="position: relative; top: 40%; display: flex;">
+            <div id="signature-confirm"
+                style="
+                    display: none;
+                    position: relative;
+                    top: 30%;
+                "
+            >
+                <p>PIN</p>
+                <br>
+                <div>
+                    <input type="password" name="password" id="pin-signature"
+                        style="
+                            padding: 10px;
+                        "
+                    >
+                </div>
+                <br>
+                <div>
+                    <button
+                        id="btn-confirm"
+                        style="
+                            cursor:pointer;
+                            border: none;
+                            box-shadow: none;
+                            background: rgba(0,0,200,0.6);
+                            color: white;
+                            padding: 10px;
+                            border-radius: 5px;
+                        "
+                    >Confirm</button>
+                </div>
+            </div>
+            <div id="switch-area" style="position: relative; top: 40%; display: flex;">
                 <div style="flex: 3;">
                     <button
                         id="btn-certificate"
@@ -402,8 +443,6 @@ export default class Modal
         let modal = document.createElement('div');
 
         modal.innerHTML = '';
-
-        let list_certificates = this.list_certificates;
 
         modal.innerHTML = this.buildMiniatureByList(this.list_certificates.map(cert =>
         {
@@ -751,35 +790,101 @@ export default class Modal
 
             const body = document.querySelector('#bd-progress-bar');
 
+            let switchArea = document.querySelector('#switch-area');
+
+            let signatureConfirmArea = document.querySelector('#signature-confirm');
+
             const buttonDownlod = document.querySelector('#download-signed');
+
+            let buttonConfirm = document.querySelector('#btn-confirm');
 
             buttonSign.style.display = 'none';
 
-            background.style.display = 'block';
+            switchArea.style.display = 'none';
 
-            for(let i = 0; i <= this.pdfFile.length; i++) {
+            signatureConfirmArea.style.display = 'block';
 
-                let percent = ( i * 100 ) / this.pdfFile.length;
-                
-                if(i == this.pdfFile.length){
+            buttonConfirm.addEventListener('click', async () => {
+
+                background.style.display = 'block';
+
+                signatureConfirmArea.style.display = 'none';
+
+                for(let i = 0; i <= this.pdfFile.length; i++) {
+
+                    let percent = ( i * 100 ) / this.pdfFile.length;
+
+                    if(percent == 100){
+                        body.style.width = percent + '%';
+                        break;
+                    }
+
+                    let password = document.querySelector('#pin-signature').value;
+
+                    if(this.certificate.length == 0) {
+                        console.error("Certificate is not selected");
+                        break;
+                    }
+
+                    let cert = this
+                        .list_certificates
+                        .filter(cert => cert.name == this.certificate);
+
+                    if(cert.length == 0){
+                        console.error("Certificate (" + this.certificate + ") not found");
+                        break;
+                    }
+
+                    let responseJson = await this.requestSignature(this.pdfFile[i], cert[0], password);
+
+                    let response = JSON.parse(responseJson);
+
+                    let fileSigned = new File(
+                        response.FileName.replace('-signed', ''),
+                        response.FileContent
+                    );
+
+                    console.log(response);
+
+                    this.signedFiles.push(fileSigned);
+
                     body.style.width = percent + '%';
-                    break;
                 }
 
-                // let response = await this.requestSignature(this.pdfFile[i], this.certificate);
+                background.style.display = 'none';
 
-                body.style.width = percent + '%';
-            }
+                signatureConfirmArea.style.display = 'none';
 
-            background.style.display = 'none';
+                buttonDownlod.style.display = 'block';
 
-            buttonDownlod.style.display = 'block';
+                buttonDownlod.addEventListener('click', this.downloadFilesSinged.bind(this));
+            })
         }
     }
 
-    async requestSignature(file, cert)
+    async requestSignature(file, certificate, password)
     {
-
+        return await this.clientSignatureRequest(file, certificate, password);
     }
 
+    async downloadFilesSinged()
+    {
+        const libzip = new JSZip();
+
+        for(let fs of this.signedFiles) {
+
+            let blob = fs.toBlob();
+
+            libzip.file(fs.name, blob);
+        }
+
+        const content = await libzip.generateAsync({ type: "blob"});
+
+        const a = document.createElement('a');
+
+        a.href = URL.createObjectURL(content);
+        a.download = 'signed-files.zip';
+        a.click();
+        a.remove();
+    }
 }

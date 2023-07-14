@@ -38,20 +38,37 @@ export default class Signer
         });
     }
 
-    sign()
-    {
-        this.request = {
-            Signature: {
-                Sign: {
-                    FileName: this.file.name,
-                    FileContent: this.file.content,
-                    Password: this.password,
-                    CertId: this.certificate.id
-                }
-            }
-        };
+    sign(file, certificate, password) {
 
-        this._ws.send(Json.stringfy(this.request));
+        return new Promise((resolve, reject) => {
+            try
+            {
+                this.request = {
+                    Signatures: {
+                        Sign: {
+                            FileName: file.name,
+                            FileContent: file.content,
+                            Password: password,
+                            CertId: certificate.id
+                        }
+                    }
+                };
+
+                console.log(file.content);
+
+                let body = JSON.stringify(this.request);
+    
+                this._ws.send(body);
+
+                this._ws.onerror = (event) => reject(event.data)
+
+                this._ws.onmessage = (event) => resolve(event.data);
+            }
+            catch (error)
+            {
+                reject(error);
+            }
+        });
     }
 
     setFile(file)
@@ -71,7 +88,7 @@ export default class Signer
 
     showModal()
     {
-        
+
     }
 
     showFile()

@@ -1,10 +1,12 @@
 using System.Net;
+using System.Net.WebSockets;
+using System.Threading;
 
 namespace Service.Network.Server;
 
 public class WebsocketServer
 {
-    public void BootServer()
+    public async Task BootServer()
     {
         var config = new Credentials();
 
@@ -14,17 +16,21 @@ public class WebsocketServer
 
         listener.Start();
 
-        Console.WriteLine($"Server is Running in - {config.Prefix} | {DateTime.UtcNow.ToString("MM-dd-yyy H:mm:ss")}");
+        Console.WriteLine($"Server Listen - {config.Prefix} | {DateTime.UtcNow.ToString("MM-dd-yyy H:mm:ss")}");
 
-        NonBreakableLoop(listener).Wait();
+        await RequestExecute(listener);
+
+        listener.Abort();
+
+        await BootServer();
     }
 
     public void Listen()
     {
-        BootServer();
+        BootServer().Wait();
     }
 
-    public async Task NonBreakableLoop(HttpListener listener)
+    public async Task RequestExecute(HttpListener listener)
     {
         var context = await listener.GetContextAsync();
 
@@ -32,8 +38,6 @@ public class WebsocketServer
         {
             await ProcessWebSocketRequest(context);
         }
-
-        await NonBreakableLoop(listener);
     }
 
     private async Task ProcessWebSocketRequest(HttpListenerContext context)

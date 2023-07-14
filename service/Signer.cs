@@ -6,7 +6,7 @@ using Parser = Org.BouncyCastle.X509.X509CertificateParser;
 using BouncyCert = Org.BouncyCastle.X509.X509Certificate;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json;
-using Service.Signature;
+using Service.SignatureUsage;
 using System.Text;
 
 namespace Service;
@@ -146,6 +146,8 @@ public class Signer
         }
         catch (System.Exception generic)
         {
+            message = generic.Message;
+
             statusCode = 500;
 
             status = "fail";
@@ -161,7 +163,9 @@ public class Signer
             CertName = certName,
             FileName = fileName,
             FileContent = signedContent,
-            Status = status.ToUpper()
+            Status = status.ToUpper(),
+            StatusCode = statusCode,
+            Message = message
         };
     }
 
