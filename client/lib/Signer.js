@@ -54,8 +54,6 @@ export default class Signer
                     }
                 };
 
-                console.log(file.content);
-
                 let body = JSON.stringify(this.request);
     
                 this._ws.send(body);

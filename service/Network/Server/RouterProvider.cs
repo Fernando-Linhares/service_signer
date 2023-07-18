@@ -21,7 +21,7 @@ public class RouterProvider: IRouter
 
         string logPath = _env.Get("LOGS_PATH") ?? "";
 
-        BufferSize = int.Parse(_env.Get("LIMIT_SIZE_BYTES_REQUEST"));
+        BufferSize = 14969112;//int.Parse(_env.Get("LIMIT_SIZE_BYTES_REQUEST"));
 
         _logger = new Logger(logPath);
     }
@@ -32,8 +32,6 @@ public class RouterProvider: IRouter
 
         try
         {
-            Console.WriteLine(_context.Request.ContentLength64);
-
             HttpListenerWebSocketContext webSocketContext = await _context.AcceptWebSocketAsync(null);
 
             WebSocket webSocket = webSocketContext.WebSocket;
@@ -42,12 +40,41 @@ public class RouterProvider: IRouter
 
             WebSocketReceiveResult result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
 
-            while (!result.CloseStatus.HasValue)
+            while (webSocket.State == WebSocketState.Open)
             {
                 string receivedMessage = Encoding.UTF8.GetString(buffer, 0, result.Count);
-                
-                Console.WriteLine("Len - "+buffer.Length);
+    
+                if(receivedMessage.Length > 100)
+                {
+                    Console.WriteLine("- 1");
+                    byte[] contentBeforeMessage = buffer;
+                    Console.WriteLine("- 2");
+
+                    while(!result.EndOfMessage)
+                        result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
+                    Console.WriteLine("- 3");
+
+                    int totalSize  = buffer.Length + contentBeforeMessage.Length;
+                    Console.WriteLine("- 4");
+
+                    byte[] contentAfterMessage = new byte[totalSize];
+                    Console.WriteLine("- 5");
+
+                    for(int i = 0; i < buffer.Length; i++)
+                    {
+                        contentAfterMessage[contentBeforeMessage.Length + i] = buffer[i];
+                    }
+                    Console.WriteLine("- 6");
+
+                    buffer = contentAfterMessage;
+
+                    receivedMessage = Encoding.UTF8.GetString(buffer, 0, result.Count);
+                    Console.WriteLine("- 7");
+
+                }
+
                 Console.WriteLine(receivedMessage);
+
                 var request = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, Dictionary<string,string>>>>(receivedMessage);
 
                 var routes = new Routes();
@@ -59,7 +86,7 @@ public class RouterProvider: IRouter
                     string routeName = className.Replace("Controller", "");
 
                     if(request.Keys.Contains(routeName))
-                    {   
+                    {
                         var matchAttrs = request[routeName];
 
                         var listMethodInfo = controller.GetType().GetMethods().ToList();
@@ -100,6 +127,9 @@ public class RouterProvider: IRouter
         catch (System.Exception exception)
         {
             Console.WriteLine(exception.Message);
+            Console.WriteLine(exception.Source);
+            Console.WriteLine(exception.StackTrace);
+
 
             _logger.Write($"{DateTime.Now.ToString("MM-dd-yyyy H:mm:s")}| ERROR - {exception.Message}");
 
