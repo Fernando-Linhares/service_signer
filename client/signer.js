@@ -6,9 +6,9 @@ async function signer(setup) {
 
     let signator = new Signer();
 
-    await signator.connect();
+    let certificatesConnection = await signator.connect("ws://localhost:2514/Certificates/Index");
 
-    let responseSigner = await signator.listCertificates();
+    let responseSigner = await certificatesConnection.listCertificates();
 
     let id = 1;
 
@@ -24,7 +24,11 @@ async function signer(setup) {
     })
     .filter(cert => cert.name !== 'localhost')
 
-    setup.signatureRequest = async (file, certificate, password) => await signator.sign(file, certificate, password);
+    setup.signatureRequest = async (file, certificate, password) => {
+        let signatureConnection = await await signator.connect("ws://localhost:2514/Signatures/Sign");
+        
+        await signatureConnection.sign(file, certificate, password);
+    };
  
     let modal = new Modal(setup); 
 

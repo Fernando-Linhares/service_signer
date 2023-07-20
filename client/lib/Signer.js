@@ -1,20 +1,19 @@
 export default class Signer
 {
-    response = {};
+    _conn;
 
-    request = {};
-
-    password = {};
-
-    connect() {
-        return new Promise((resolve,reject) => {
+    connect(route) {
+        return new Promise((resolve, reject) => {
             try
             {
-                this._ws = new WebSocket("ws://localhost:2514/");
+                let ws = new WebSocket(route);
 
-                this._ws.onopen = (event) => resolve(event.data);
+                this._conn = ws;
 
-            } catch (error) {
+                ws.onopen = (event) => resolve(this);
+
+            } catch (error)
+            {
                 reject(error)
             }
         });
@@ -24,11 +23,7 @@ export default class Signer
         return new Promise((resolve, reject) => {
             try
             {
-                this.request = this._ws.send(JSON.stringify({
-                    Certificates: {
-                        Index: {}
-                    }
-                }))
+                this._conn.send(JSON.stringify({}));
 
                 this._ws.onmessage = (event) => resolve(JSON.parse(event.data));
 
@@ -43,27 +38,23 @@ export default class Signer
         return new Promise((resolve, reject) => {
             try
             {
-                this.request = {
-                    Signatures: {
-                        Sign: {
-                            FileName: file.name,
-                            FileContent: file.content,
-                            Password: password,
-                            CertId: certificate.id
-                        }
-                    }
+                let request = {
+                    FileName: file.name,
+                    FileContent: file.content,
+                    Password: password,
+                    CertId: certificate.id
                 };
 
-                let body = JSON.stringify(this.request);
-    
-                this._ws.send(body);
+                let body = JSON.stringify(request);
 
-                this._ws.onerror = (event) => reject(event.data)
+                this._conn.send(body);
 
-                this._ws.onmessage = (event) => resolve(event.data);
+                this._conn.onmessage = (event) => resolve(event.data);
             }
             catch (error)
             {
+                this._conn.onerror = (event) => reject(event.data);
+
                 reject(error);
             }
         });

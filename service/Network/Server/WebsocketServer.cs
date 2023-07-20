@@ -42,7 +42,7 @@ public class WebsocketServer
 
     private async Task ProcessWebSocketRequest(HttpListenerContext context)
     {
-        var router = new RouterProvider();
+        IRouter router = new RouteLayer();
 
         router.UseContext(context);
 
