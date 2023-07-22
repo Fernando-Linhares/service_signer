@@ -24,6 +24,8 @@ public class Logger
             f.Close();
         }
 
-        File.AppendAllText(logFileName, "\n" + content);
+        string currentContent = File.ReadAllText(logFileName);
+
+        File.WriteAllText(logFileName, currentContent + "\n" + content);
     }
 }

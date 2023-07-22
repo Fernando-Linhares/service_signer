@@ -2,7 +2,7 @@ using System.Net;
 
 namespace Service.Network.Server;
 
-public interface IRouter
+public interface IDefinition
 {
     public void UseContext(HttpListenerContext context);
 

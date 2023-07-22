@@ -2,14 +2,15 @@ using Service.Network;
 using System.Security.Cryptography;
 using System.Text;
 using System;
+using Service.SignatureUsage;
 
-namespace Service.Controllers;
+namespace Service.Models;
 
-public class SignaturesController: Controller
+public class Signature: BaseModel
 {
     private Logger _logger { get; set; }
 
-    public SignaturesController()
+    public Signature()
     {
         var env = new Env();
 
@@ -22,27 +23,35 @@ public class SignaturesController: Controller
     {
         var env = new Env();
 
+        Statement result = null;
+
         try
         {
-            string filePath = await MountFile(Form["FileName"], Form["FileContent"]);
+            string filePath = await MountFile(Form["filename"], Form["filecontent"]);
 
-            int cert = int.Parse(Form["CertId"]);
+            int cert = int.Parse(Form["certid"]);
 
-            string password = Form["Password"];
+            string password = Form["password"];
 
-            var result = await Signer.Sign(cert, password, filePath);
-
+            result = await Signer.Sign(cert, password, filePath);
+                        
             if(!env.KeyIsEmpty("WEBHOOK"))
-                await Signer.UpdateStatus(result.Status, Form["FileName"], env.Get("WEBHOOK"), env.Get("LOG_PATH"));
-            
-            return await Send(result);
+                await Signer.UpdateStatus(result.Status, Form["filename"], env.Get("WEBHOOK"), env.Get("LOG_PATH"));
         }
         catch (System.Exception exception)
         {
             _logger.Write(exception.Message);
-
+            Console.WriteLine(exception.Message);
             throw;
         }
+
+        if(result is null){
+            return await Error(new {
+                Error="Internal error",
+                Code=1
+            });
+        }
+        return await Send(result);
     }
 
     private async Task<string> MountFile(string filename, string filecontent)

@@ -559,6 +559,7 @@ export default class Modal
           reader.onload = () => {
             const base64Content = reader.result.split(',')[1];
             resolve(base64Content);
+            console.log(base64Content);
           };
       
           reader.onerror = (error) => {

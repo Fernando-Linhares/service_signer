@@ -10,17 +10,11 @@ public class WebsocketServer
     {
         var config = new Credentials();
 
-        var listener = new HttpListener();
+        var definition = new DefinitionLayer();
 
-        listener.Prefixes.Add(config.Prefix);
-
-        listener.Start();
-
+        await definition.StartAsync();
+    
         Console.WriteLine($"Server Listen - {config.Prefix} | {DateTime.UtcNow.ToString("MM-dd-yyy H:mm:ss")}");
-
-        await RequestExecute(listener);
-
-        listener.Abort();
 
         await BootServer();
     }
@@ -28,24 +22,5 @@ public class WebsocketServer
     public void Listen()
     {
         BootServer().Wait();
-    }
-
-    public async Task RequestExecute(HttpListener listener)
-    {
-        var context = await listener.GetContextAsync();
-
-        if(context.Request.IsWebSocketRequest)
-        {
-            await ProcessWebSocketRequest(context);
-        }
-    }
-
-    private async Task ProcessWebSocketRequest(HttpListenerContext context)
-    {
-        IRouter router = new RouteLayer();
-
-        router.UseContext(context);
-
-        await router.Dispatch();
     }
 }
