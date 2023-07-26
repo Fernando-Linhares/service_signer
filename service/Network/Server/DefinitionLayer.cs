@@ -1,7 +1,7 @@
 using System.Net;
 using System.Net.WebSockets;
 using System.Text;
-using Service.Models;
+using Service.MVVM.Models;
 
 namespace Service.Network.Server;
 
@@ -79,11 +79,16 @@ public class DefinitionLayer
 
                     if(result.EndOfMessage)
                     {
-                        string messageRquest = _messageBuilder.ToString();
-                        
+                        string messageRequest = _messageBuilder.ToString();
+
                         var app = new Application();
 
-                        var messageResponse = await app.Flush(messageRquest);
+                        var messageResponse = await app.Flush(messageRequest);
+                        // Console.WriteLine(messageResponse);
+
+                        // var viewModel = new ViewModel();
+
+                        // var messageResponse = await viewModel.RunApplication(messageRquest);
 
                         await SendStringAsync(messageResponse);
 

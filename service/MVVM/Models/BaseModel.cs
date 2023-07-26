@@ -1,10 +1,11 @@
 using Service.Network;
 using Newtonsoft.Json;
 
-namespace Service.Models;
+namespace Service.MVVM.Models;
 
 public abstract class BaseModel
 {
+
    public Dictionary<string, string>? Form { get; set; }
 
    public async Task<Response> Send(object data)

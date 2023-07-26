@@ -13,7 +13,7 @@ public class WebsocketServer
         var definition = new DefinitionLayer();
 
         await definition.StartAsync();
-    
+
         Console.WriteLine($"Server Listen - {config.Prefix} | {DateTime.UtcNow.ToString("MM-dd-yyy H:mm:ss")}");
 
         await BootServer();

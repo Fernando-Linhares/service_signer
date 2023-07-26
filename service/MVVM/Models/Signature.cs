@@ -1,10 +1,7 @@
 using Service.Network;
-using System.Security.Cryptography;
-using System.Text;
-using System;
 using Service.SignatureUsage;
 
-namespace Service.Models;
+namespace Service.MVVM.Models;
 
 public class Signature: BaseModel
 {

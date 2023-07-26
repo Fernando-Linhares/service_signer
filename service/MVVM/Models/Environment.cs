@@ -1,13 +1,13 @@
 using Service.Network;
 
-namespace Service.Models;
+namespace Service.MVVM.Models;
 
 public class Environment: BaseModel
 {
     private readonly Env _env = new Env();
 
     public async Task<Response> Setup()
-    {        
+    {
         return await Send(new
         {
             AppName = _env.Get("APP_NAME"),

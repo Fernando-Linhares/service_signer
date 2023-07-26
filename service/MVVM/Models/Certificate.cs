@@ -1,6 +1,6 @@
 using Service.Network;
 
-namespace Service.Models;
+namespace Service.MVVM.Models;
 
 public class Certificate : BaseModel
 {

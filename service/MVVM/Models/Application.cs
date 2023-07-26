@@ -3,7 +3,7 @@ using System.Text;
 using Service.Network;
 using Newtonsoft.Json;
 
-namespace Service.Models;
+namespace Service.MVVM.Models;
 
 public class Application: BaseModel
 {
@@ -24,8 +24,8 @@ public class Application: BaseModel
 
     public async Task<string> Flush(string request)
     {
-        var defaultMessage = ExecuteMessage(new Dictionary<string, string>{
-            ["command"] = "default"
+        var defaultMessage = ExecuteMessage(new Dictionary<string, string> {
+            ["command"]="default"
         });
 
         try
