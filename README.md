@@ -2,6 +2,6 @@
 
 Project to sign pdf files using extension for web
 
->> Install on device
+> Install on device
 
->> Sign pdf using client hosted
+> Sign pdf using client hosted
