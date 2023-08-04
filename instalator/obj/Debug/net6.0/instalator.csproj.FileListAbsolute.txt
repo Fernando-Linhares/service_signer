@@ -1,0 +1,15 @@
+/home/fernando/projects/signer/instalator/bin/Debug/net6.0/instalator
+/home/fernando/projects/signer/instalator/bin/Debug/net6.0/instalator.deps.json
+/home/fernando/projects/signer/instalator/bin/Debug/net6.0/instalator.runtimeconfig.json
+/home/fernando/projects/signer/instalator/bin/Debug/net6.0/instalator.dll
+/home/fernando/projects/signer/instalator/bin/Debug/net6.0/ref/instalator.dll
+/home/fernando/projects/signer/instalator/bin/Debug/net6.0/instalator.pdb
+/home/fernando/projects/signer/instalator/obj/Debug/net6.0/instalator.csproj.AssemblyReference.cache
+/home/fernando/projects/signer/instalator/obj/Debug/net6.0/instalator.GeneratedMSBuildEditorConfig.editorconfig
+/home/fernando/projects/signer/instalator/obj/Debug/net6.0/instalator.AssemblyInfoInputs.cache
+/home/fernando/projects/signer/instalator/obj/Debug/net6.0/instalator.AssemblyInfo.cs
+/home/fernando/projects/signer/instalator/obj/Debug/net6.0/instalator.csproj.CoreCompileInputs.cache
+/home/fernando/projects/signer/instalator/obj/Debug/net6.0/instalator.dll
+/home/fernando/projects/signer/instalator/obj/Debug/net6.0/ref/instalator.dll
+/home/fernando/projects/signer/instalator/obj/Debug/net6.0/instalator.pdb
+/home/fernando/projects/signer/instalator/obj/Debug/net6.0/instalator.genruntimeconfig.cache

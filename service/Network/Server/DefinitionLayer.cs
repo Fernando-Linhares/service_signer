@@ -84,16 +84,11 @@ public class DefinitionLayer
                         var app = new Application();
 
                         var messageResponse = await app.Flush(messageRequest);
-                        // Console.WriteLine(messageResponse);
-
-                        // var viewModel = new ViewModel();
-
-                        // var messageResponse = await viewModel.RunApplication(messageRquest);
 
                         await SendStringAsync(messageResponse);
 
                         _messageBuilder.Clear();
-                    }                    
+                    }
                 }
                 else if (result.MessageType == WebSocketMessageType.Close)
                 {

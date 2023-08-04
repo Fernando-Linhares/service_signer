@@ -6,3 +6,4 @@ service/.env
 !logs
 !pdfs
 !preferencies
+service-test/bin/*
